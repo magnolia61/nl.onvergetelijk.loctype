@@ -1,0 +1,25 @@
+<div crm-template="crmActionSchedule/MessageModel.html" crm-template-after=".crm-action-schedule-mode">
+  <div class="crm-section" ng-show="data.mode == 'Email'">
+    <div class="label">{{:: ts('Email Location Type') }}</div>
+    <div class="content">
+      <select 
+        crm-ui-select="{placeholder: ts('Automatic'), allowClear: true}" 
+        ng-model="data.email_location_type_id" 
+        crm-api4-options="{entity: 'LocationType', select: ['id', 'display_name']}">
+        <option value=""></option>
+      </select>
+    </div>
+  </div>
+
+  <div class="crm-section" ng-show="data.mode == 'Email' && data.email_location_type_id">
+    <div class="label">{{:: ts('Selection Method') }}</div>
+    <div class="content">
+      <select crm-ui-select ng-model="data.email_selection_method">
+        <option value="automatic">{{:: ts('Automatic') }}</option>
+        <option value="location_only">{{:: ts('Only send to specified location') }}</option>
+        <option value="location_prefer">{{:: ts('Prefer specified location') }}</option>
+        <option value="location_exclude">{{:: ts('Exclude specified location') }}</option>
+      </select>
+    </div>
+  </div>
+</div>
