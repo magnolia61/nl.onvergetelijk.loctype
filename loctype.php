@@ -78,31 +78,34 @@ function loctype_civicrm_alterMailParams(&$params, $context) {
 
 /**
  * Implements hook_civicrm_buildForm().
+ * * Voegt de locatie-instellingen toe aan het Schedule Reminders formulier.
  */
 function loctype_civicrm_buildForm($formName, &$form) {
   if ($formName === 'CRM_Admin_Form_ScheduleReminders') {
     $extdebug = 1;
-    wachthond($extdebug, 1, "### LOCTYPE [FORM] buildForm gestart voor ScheduleReminders");
-
+    
+    // 1. Haal de beschikbare locatietypes op
     $locationTypes = \CRM_Core_PseudoConstant::get('CRM_Core_DAO_Address', 'location_type_id');
     
-    // Voeg de velden toe aan het formulier (worden door FormFields.tpl in de modal geplaatst)
-    $form->add('select', 'email_location_type_id', ts('Email Location'), 
-      ['' => ts('- Default (Primary) -')] + $locationTypes, 
-      false, 
+    // 2. Voeg de velden toe aan het formulier object
+    // Deze worden door Smarty gerenderd in de FormFields.tpl
+    $form->add('select', 'email_location_type_id', E::ts('Email Location'), 
+      ['' => E::ts('- Default (Primary) -')] + $locationTypes, 
+      FALSE, 
       ['class' => 'crm-select2']
     );
 
-    $form->add('select', 'email_selection_method', ts('Selection Method'), [
-      'automatic'        => ts('Automatic'),
-      'location_only'    => ts('Only send to specified location'),
-      'location_prefer'  => ts('Prefer specified location'),
-      'location_exclude' => ts('Exclude specified location'),
+    $form->add('select', 'email_selection_method', E::ts('Selection Method'), [
+      'automatic'        => E::ts('Automatic'),
+      'location_only'    => E::ts('Only send to specified location'),
+      'location_prefer'  => E::ts('Prefer specified location'),
+      'location_exclude' => E::ts('Exclude specified location'),
     ]);
 
+    // 3. Defaults laden op basis van de Reminder ID
     $id = $form->getVar('_id');
     if ($id) {
-      $sql = "SELECT email_location_type_id, email_selection_method FROM civicrm_action_schedule WHERE id = %1";
+      $sql      = "SELECT email_location_type_id, email_selection_method FROM civicrm_action_schedule WHERE id = %1";
       $defaults = CRM_Core_DAO::executeQuery($sql, [1 => [$id, 'Integer']])->fetch();
       
       if ($defaults) {
@@ -110,11 +113,11 @@ function loctype_civicrm_buildForm($formName, &$form) {
           'email_location_type_id' => $defaults->email_location_type_id,
           'email_selection_method' => $defaults->email_selection_method ?? 'automatic',
         ]);
-        wachthond($extdebug, 1, "### LOCTYPE [FORM] Defaults geladen voor SID: " . $id . " (Method: " . $defaults->email_selection_method . ")");
       }
     }
 
-    // Injecteer de template die de Wrench en de Modal Dialog bevat
+    // 4. Injecteer de template. We gebruiken 'page-body' om te zorgen 
+    // dat de dialoog buiten de standaard form-volgorde staat.
     CRM_Core_Region::instance('page-body')->add([
       'template' => 'CRM/Loctype/FormFields.tpl',
     ]);

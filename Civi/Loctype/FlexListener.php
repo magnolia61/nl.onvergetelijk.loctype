@@ -2,6 +2,10 @@
 
 namespace Civi\Loctype;
 
+// DEZE REGELS ONTBREKEN WAARSCHIJNLIJK:
+require_once __DIR__ . '/../../loctype.civix.php';
+use CRM_Loctype_ExtensionUtil as E;
+
 class FlexListener {
 
     /**
